@@ -27,79 +27,101 @@ Hệ thống được thiết kế để hoạt động như một chuyên viên
 
 ---
 
-## 👤 Thành viên thực hiện
-| Họ tên | Vai trò | Công việc phụ trách |
+## 👤 Thành viên thực hiện & Đóng góp
+| Họ tên | Vai trò | Công việc phụ trách & Đóng góp chính |
 | :--- | :--- | :--- |
-| **Lê Khánh Hoàng** | Trưởng nhóm | Phát triển hệ thống AI, Xây dựng kiến trúc LangGraph, RAG và Frontend |
-| **Trương Xuân Hưng** | Thành viên | Xây dựng nội dung báo cáo Chương 11 và Chương 12 |
-| **Lê Quốc Nam** | Thành viên | Xây dựng nội dung báo cáo Chương 1, Chương 2 và Chương 3 |
+| **Lê Quốc Nam** | Đồng phát triển | **Cấu hình môi trường chạy, tối ưu hóa cấu trúc Git, tích hợp dữ liệu hệ thống và kiểm thử.** |
+| **Lê Khánh Hoàng** | Trưởng nhóm | Nghiên cứu và xây dựng cấu trúc luồng LangGraph, RAG và thiết kế giao diện Chatbot. |
+| **Trương Xuân Hưng** | Đồng phát triển | Xây dựng tài liệu báo cáo và nội dung tổng kết hệ thống. |
+
 ---
 
 ## 🏗️ Kiến trúc hệ thống
 Hệ thống được xây dựng dựa trên quy trình **Reasoner-ToolNode** của LangGraph:
-1.  **Reasoner (Bộ não)**: Sử dụng mô hình LLM Qwen2.5 để phân tích câu hỏi của người dùng.
-2.  **Tools (Công cụ)**:
-    *   `tra_cuu_thong_tin`: Truy xuất dữ liệu từ mã nguồn PDF (RAG).
-    *   `tra_cuu_diem_chuan`: Tra cứu dữ liệu có cấu trúc từ tệp JSON.
-3.  **State Management**: Quản lý lịch sử hội thoại và thông tin hồ sơ thí sinh theo thời gian thực.
+1.  **Reasoner (Bộ não)**: Sử dụng mô hình LLM Qwen2.5 (qua Hugging Face API) để phân tích ý định câu hỏi của người dùng.
+2.  **Tools (Công cụ trợ lý)**:
+    *   `tra_cuu_thong_tin`: Truy xuất ngữ cảnh từ dữ liệu PDF Đề án tuyển sinh (RAG) sử dụng ChromaDB.
+    *   `tra_cuu_diem_chuan`: Thực hiện truy vấn dữ liệu có cấu trúc từ tệp JSON chứa điểm chuẩn các năm.
+3.  **State Management**: Quản lý lịch sử hội thoại, ngữ cảnh RAG và hồ sơ học sinh theo thời gian thực qua State của LangGraph.
 
 ---
 
 ## 📂 Cấu trúc thư mục
 ```text
-CNLTHD-LANGCHAIN-NHOM20/
+ChatBotTuVanTuyenSinh/
 ├── data/
-│   ├── admissions/      # Chứa tệp PDF đề án tuyển sinh
-│   └── diem_chuan_2025.json # Dữ liệu điểm chuẩn có cấu trúc
+│   ├── admissions/      # Chứa tài liệu đề án tuyển sinh định dạng PDF
+│   └── diem_chuan_2025.json # Dữ liệu điểm chuẩn có cấu trúc (JSON)
 ├── src/
-│   ├── agents/          # Định nghĩa persona và logic điều phối
-│   ├── graph/           # Xây dựng luồng workflow (State, Nodes, Graph)
-│   └── tools/           # Các công cụ tra cứu dữ liệu
-├── chroma_db/           # Cơ sở dữ liệu vector lưu trữ embeddings
-├── frontend1.py         # Giao diện người dùng Streamlit
-├── ingest.py            # Script nạp dữ liệu từ PDF vào VectorDB
-├── requirements.txt     # Danh sách thư viện phụ thuộc
-└── .env                 # Cấu hình biến môi trường (HF_TOKEN)
+│   ├── agents/          # Định nghĩa cấu hình hệ thống AI Agent
+│   ├── graph/           # Xây dựng luồng workflow đồ thị (State, Nodes, Graph)
+│   └── tools/           # Các công cụ hỗ trợ truy xuất thông tin
+├── chroma_db/           # Cơ sở dữ liệu Vector lưu trữ dữ liệu embeddings
+├── frontend1.py         # Giao diện người dùng Chatbot chạy bằng Streamlit
+├── ingest.py            # Script xử lý trích xuất văn bản PDF và nạp vào ChromaDB
+├── requirements.txt     # Danh sách toàn bộ thư viện phụ thuộc
+├── .env                 # File chứa khóa cấu hình môi trường (HF_TOKEN)
+└── README.md            # Tài liệu dự án dành cho nhà tuyển dụng
 ```
 
 ---
 
-## 🛠️ Hướng dẫn cài đặt
+## 🛠️ Hướng Dẫn Cài Đặt Và Chạy Cục Bộ (Setup & Run)
 
-### 1. Chuẩn bị môi trường
-Yêu cầu Python 3.10 trở lên. Khuyến khích sử dụng [uv](https://github.com/astral-sh/uv) để quản lý gói nhanh hơn.
+Nhà tuyển dụng có thể dễ dàng chạy thử nghiệm chatbot cục bộ theo các bước chi tiết sau:
 
-### 2. Cài đặt thư viện
+### 1. Chuẩn bị môi trường (Prerequisites)
+*   Cài đặt **Python 3.10** trở lên trên hệ điều hành máy của bạn.
+*   Một API Token từ Hugging Face (Tạo hoàn toàn miễn phí tại [huggingface.co](https://huggingface.co/) -> Settings -> Access Tokens).
+
+### 2. Cài đặt chi tiết qua môi trường ảo (Virtual Environment)
+Mở Terminal/PowerShell tại thư mục dự án và chạy các lệnh:
 ```bash
+# Tạo môi trường ảo riêng biệt
+python -m venv .venv
+
+# Kích hoạt môi trường ảo
+# Trên Windows (PowerShell):
+(Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned) ; .venv\Scripts\Activate.ps1
+# Trên Windows (Command Prompt):
+.venv\Scripts\activate
+# Trên macOS/Linux:
+source .venv/bin/activate
+
+# Cài đặt các thư viện cần thiết
 pip install -r requirements.txt
 ```
 
-### 3. Cấu hình biến môi trường
-Tạo tệp `.env` tại thư mục gốc và thêm mã Hugging Face Token:
+### 3. Cấu hình khóa API Token
+Tạo file `.env` tại thư mục gốc của dự án (hoặc mở file `.env` đã có sẵn) và điền mã thông báo Hugging Face của bạn:
 ```env
-HF_TOKEN=your_huggingface_token_here
+HF_TOKEN=mã_huggingface_token_của_bạn_ở_đây
 ```
 
 ---
 
-## 🚀 Hướng dẫn sử dụng
+## 🚀 Hướng dẫn sử dụng chi tiết (Execution)
 
-### Bước 1: Nạp dữ liệu tuyển sinh
-Bỏ tệp PDF đề án vào `data/admissions/De_an_tuyen_sinh_2026.pdf` và chạy:
+### Bước 1: Nạp tài liệu tuyển sinh vào Cơ sở dữ liệu Vector (VectorDB Ingestion)
+Đặt tệp PDF đề án tuyển sinh của trường vào thư mục `data/admissions/` (ví dụ `De_an_tuyen_sinh_2026.pdf`), sau đó tiến hành chạy script để bóc tách văn bản, nhúng embeddings và lưu vào Chroma Vector Database:
 ```bash
 python ingest.py
 ```
+*Hệ thống sẽ quét tài liệu PDF, phân đoạn và tạo các vector nhúng (embeddings) lưu trữ cục bộ trong thư mục `chroma_db/`.*
 
-### Bước 2: Khởi chạy Chatbot
+### Bước 2: Khởi chạy Giao diện Chatbot tư vấn
+Chạy ứng dụng Web tương tác Streamlit:
 ```bash
 streamlit run frontend1.py
 ```
+Ứng dụng sẽ tự động mở trang web giao diện tư vấn tuyển sinh tại địa chỉ cục bộ: `http://localhost:8501`.
 
 ---
 
-## 💻 Công nghệ sử dụng
-*   **Ngôn ngữ**: Python
-*   **LLM**: Qwen2.5 (via Hugging Face API)
-*   **Framework**: LangChain, LangGraph
-*   **Vector Database**: ChromaDB (với HuggingFace Embeddings)
-*   **Interface**: Streamlit
+## 💻 Công nghệ sử dụng chính (Tech Stack)
+*   **Ngôn ngữ lập trình**: Python 3.10+
+*   **Mô hình ngôn ngữ (LLM)**: Qwen2.5-72B-Instruct (via Hugging Face Serverless API)
+*   **Framework AI**: LangChain & LangGraph (Quản lý trạng thái và luồng quyết định đồ thị Agent)
+*   **Cơ sở dữ liệu Vector**: ChromaDB với Hugging Face Embeddings
+*   **Giao diện người dùng**: Streamlit UI responsive, tối ưu trải nghiệm tương tác trực quan.
+
