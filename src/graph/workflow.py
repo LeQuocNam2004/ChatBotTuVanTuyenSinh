@@ -19,7 +19,7 @@ hf_token = os.environ.get("HF_TOKEN")
 llm = ChatOpenAI(
     base_url="https://router.huggingface.co/v1",
     api_key=hf_token,
-    model="Qwen/Qwen2.5-72B-Instruct",
+    model="Qwen/Qwen2.5-7B-Instruct",
     temperature=0.1
 )
 
